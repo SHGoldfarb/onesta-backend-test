@@ -14,6 +14,8 @@ if (!process.env.PORT) {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// TODO: are these necessary?
 app.use(cors());
 app.use(helmet());
 
