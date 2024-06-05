@@ -8,4 +8,4 @@ export const Variety = sequelize.define("Variety", {
   },
 });
 
-Variety.sync();
+await Variety.sync();

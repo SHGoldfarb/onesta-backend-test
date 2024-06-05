@@ -32,3 +32,5 @@ TODO
 ## Environment variables
 
 `PORT`: Port to listen on. If empty it will use `7000`.
+
+`LOG_SQL`: `true` to log SQL queries to console. Useful for debugging.

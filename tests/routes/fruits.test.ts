@@ -1,6 +1,6 @@
 import request from "supertest";
-import { app } from "../src/app.ts";
-import { Fruit } from "../src/models/fruit.ts";
+import { app } from "../../src/app.ts";
+import { Fruit } from "../../src/models/fruit.ts";
 
 describe("POST /fruits", () => {
   it("returns the created fruit", async () => {

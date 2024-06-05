@@ -8,4 +8,4 @@ export const Fruit = sequelize.define("Fruit", {
   },
 });
 
-Fruit.sync();
+await Fruit.sync();
