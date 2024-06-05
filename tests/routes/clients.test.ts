@@ -4,7 +4,7 @@ import { Client } from "../../src/models/client.ts";
 
 describe("POST /clients", () => {
   it("returns the created client", async () => {
-    const client = { name: "John", lastName: "Smith" };
+    const client = { name: "John", lastName: "Smith", email: "jsmith@eg.ma" };
     const response = request(app).post("/clients").send(client);
     response.expect(201);
 
@@ -15,7 +15,7 @@ describe("POST /clients", () => {
 
 describe("GET /clients", () => {
   describe("when there is at least one client", () => {
-    const client = { name: "John", lastName: "Smith" };
+    const client = { name: "John", lastName: "Smith", email: "jsmith@eg.ma" };
     beforeEach(async () => {
       await Client.create(client);
     });
@@ -30,6 +30,7 @@ describe("GET /clients", () => {
           expect(res.body.total_clients).toBe(1);
           expect(res.body.clients[0].name).toBe(client.name);
           expect(res.body.clients[0].lastName).toBe(client.lastName);
+          expect(res.body.clients[0].email).toBe(client.email);
         });
     });
   });

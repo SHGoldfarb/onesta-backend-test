@@ -13,9 +13,9 @@ router.get("/", async (request: Request, response: Response) => {
 });
 
 router.post("/", async (request: Request, response: Response) => {
-  const { name, lastName } = request.body;
+  const { name, lastName, email } = request.body;
 
-  const client = await Client.create({ name, lastName });
+  const client = await Client.create({ name, lastName, email });
 
   return response.status(StatusCodes.CREATED).json({ client });
 });

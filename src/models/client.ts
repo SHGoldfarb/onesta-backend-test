@@ -12,6 +12,7 @@ interface Client
   id: CreationOptional<number>;
   name: string;
   lastName: string;
+  email: string;
 }
 
 export const Client = sequelize.define<Client>("Client", {
@@ -25,6 +26,10 @@ export const Client = sequelize.define<Client>("Client", {
     allowNull: false,
   },
   lastName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
     type: DataTypes.STRING,
     allowNull: false,
   },
