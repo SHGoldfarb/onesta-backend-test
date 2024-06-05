@@ -8,10 +8,6 @@ dotenv.config();
 
 export const app = express();
 
-if (!process.env.PORT) {
-  console.log("No port value specified!");
-}
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

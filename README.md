@@ -28,3 +28,7 @@ yarn test
 ## Build and run
 
 TODO
+
+## Environment variables
+
+`PORT`: Port to listen on. If empty it will use `7000`.
