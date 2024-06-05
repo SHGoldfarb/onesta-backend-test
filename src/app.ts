@@ -7,7 +7,7 @@ import { router } from "./routes/index.js";
 dotenv.config();
 
 if (!process.env.PORT) {
-  console.log("No port value specified....");
+  console.log("No port value specified!");
 }
 
 const PORT = parseInt(process.env.PORT as string, 10);

@@ -14,7 +14,6 @@ router.get("/", async (request: Request, response: Response) => {
 
 router.post("/", async (request: Request, response: Response) => {
   const { name } = request.body;
-  console.log(request);
 
   if (!name) {
     return response
