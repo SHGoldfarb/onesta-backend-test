@@ -2,7 +2,7 @@ import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
-import { fruitRouter } from "./routes/fruits.js";
+import { fruitsRouter } from "./routes/fruits.js";
 
 dotenv.config();
 
@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(helmet());
 
-app.use("/", fruitRouter);
+app.use("/", fruitsRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
