@@ -25,12 +25,21 @@ yarn dev
 yarn test
 ```
 
+#### Run tests in watch mode
+
+```
+yarn test:watch
+```
+
 ## Build and run
 
 TODO
 
 ## Environment variables
 
-`PORT`: Port to listen on. If empty it will use `7000`.
+- `PORT`: Port to listen on. If empty it will use `7000`.
+- `LOG_SQL`: `true` to log SQL queries to console. Useful for debugging.
 
-`LOG_SQL`: `true` to log SQL queries to console. Useful for debugging.
+## Endpoints
+
+TODO
