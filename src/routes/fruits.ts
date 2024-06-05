@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { Fruit } from "../models/fruit.js";
+import { Variety } from "../models/variety.ts";
 
 const router = express.Router();
 
@@ -13,16 +14,16 @@ router.get("/", async (request: Request, response: Response) => {
 });
 
 router.post("/", async (request: Request, response: Response) => {
-  const { name } = request.body;
+  const { name, varietyId } = request.body;
 
-  if (!name) {
+  const variety = await Variety.findByPk(varietyId);
+  if (!variety) {
     return response
       .status(StatusCodes.BAD_REQUEST)
-      .json({ error: `Please provide the name of the fruit` });
+      .json({ error: "Variety doesn't exist" });
   }
 
-  const fruit = await Fruit.create({ name });
-
+  const fruit = await Fruit.create({ name, varietyId: variety.id });
   return response.status(StatusCodes.CREATED).json({ fruit });
 });
 
