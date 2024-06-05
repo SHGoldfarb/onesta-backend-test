@@ -8,7 +8,9 @@ export const sequelize = new Sequelize({
 
 try {
   await sequelize.authenticate();
-  console.log("Database connection has been established successfully.");
+  if (process.env.NODE_ENV !== "test") {
+    console.log("Database connection has been established successfully.");
+  }
 } catch (error) {
   console.error("Unable to connect to the database:", error);
 }
