@@ -4,7 +4,7 @@ import { Fruit } from "../models/fruit.js";
 
 const router = express.Router();
 
-router.get("/fruits", async (request: Request, response: Response) => {
+router.get("/", async (request: Request, response: Response) => {
   const fruits = await Fruit.findAll();
 
   return response
@@ -12,7 +12,7 @@ router.get("/fruits", async (request: Request, response: Response) => {
     .json({ total_fruits: fruits.length, fruits });
 });
 
-router.post("/fruits", async (request: Request, response: Response) => {
+router.post("/", async (request: Request, response: Response) => {
   const { name } = request.body;
   console.log(request);
 
