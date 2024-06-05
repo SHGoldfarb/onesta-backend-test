@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { Variety } from "../models/variety.js";
+import { Variety } from "../models/variety.ts";
 
 const router = express.Router();
 
@@ -14,12 +14,6 @@ router.get("/", async (request: Request, response: Response) => {
 
 router.post("/", async (request: Request, response: Response) => {
   const { name } = request.body;
-
-  if (!name) {
-    return response
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ error: `Please provide the name of the variety` });
-  }
 
   const variety = await Variety.create({ name });
 

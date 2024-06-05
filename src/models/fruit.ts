@@ -5,7 +5,7 @@ import {
   InferCreationAttributes,
   Model,
 } from "sequelize";
-import { sequelize } from "../database/database.js";
+import { sequelize } from "../database/database.ts";
 import { Variety } from "./variety.ts";
 
 interface Fruit

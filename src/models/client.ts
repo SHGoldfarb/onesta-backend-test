@@ -7,13 +7,14 @@ import {
 } from "sequelize";
 import { sequelize } from "../database/database.ts";
 
-interface Variety
-  extends Model<InferAttributes<Variety>, InferCreationAttributes<Variety>> {
+interface Client
+  extends Model<InferAttributes<Client>, InferCreationAttributes<Client>> {
   id: CreationOptional<number>;
   name: string;
+  lastName: string;
 }
 
-export const Variety = sequelize.define<Variety>("Variety", {
+export const Client = sequelize.define<Client>("Client", {
   id: {
     primaryKey: true,
     type: DataTypes.INTEGER,
@@ -23,6 +24,10 @@ export const Variety = sequelize.define<Variety>("Variety", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  lastName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
 
-await Variety.sync();
+await Client.sync();
