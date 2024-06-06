@@ -12,7 +12,7 @@ import { Client } from "./client.ts";
 import { Farm } from "./farm.ts";
 import { Farmer } from "./farmer.ts";
 
-interface Harvest
+export interface Harvest
   extends Model<InferAttributes<Harvest>, InferCreationAttributes<Harvest>> {
   id: CreationOptional<number>;
   varietyId: number;

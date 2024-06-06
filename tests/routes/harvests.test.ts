@@ -58,3 +58,19 @@ describe("GET /harvests", () => {
     });
   });
 });
+
+describe("POST /harvests/bulk", () => {
+  it("returns the created harvests", async () => {
+    const response = request(app)
+      .post("/harvests/bulk")
+      .send({ csvPath: "./tests/resources/cosechas_ok.csv" });
+    response.expect(201);
+
+    const { body } = await response;
+
+    console.log(body);
+
+    expect(body.total_created).toBeTruthy();
+    expect(body.harvests[0].id).toBeTruthy();
+  });
+});

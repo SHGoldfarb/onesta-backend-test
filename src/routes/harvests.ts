@@ -6,6 +6,7 @@ import { Client } from "../models/client.ts";
 import { Variety } from "../models/variety.ts";
 import { Farm } from "../models/farm.ts";
 import { Farmer } from "../models/farmer.ts";
+import { createHarvestsFromFile } from "../actions/harvests.ts";
 
 const router = express.Router();
 
@@ -60,6 +61,18 @@ router.post("/", async (request: Request, response: Response) => {
     farmerId: farmerId,
   });
   return response.status(StatusCodes.CREATED).json({ harvest });
+});
+
+router.post("/bulk", async (request: Request, response: Response) => {
+  const { csvPath } = request.body;
+
+  const { harvests } = await createHarvestsFromFile({ path: csvPath });
+
+  // TODO: errors
+
+  return response
+    .status(StatusCodes.CREATED)
+    .json({ harvests, total_created: harvests.length });
 });
 
 export const harvestsRouter = router;
