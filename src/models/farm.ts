@@ -23,6 +23,7 @@ export const Farm = sequelize.define<Farm>("Farm", {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   address: {
     type: DataTypes.STRING,

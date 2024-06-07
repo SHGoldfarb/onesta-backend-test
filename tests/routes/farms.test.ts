@@ -12,14 +12,30 @@ describe("POST /farms", () => {
     expect(body.farm.name).toBe(farm.name);
   });
 
-  describe("when attributes are missing", () => {
-    // Name
-    // Address
-    it.todo("returns correct error code and message");
+  describe("when the name is already in use", () => {
+    it("returns correct error code and message", async () => {
+      const farm = { name: "Yellowgrass", address: "1234 willow st" };
+      await Farm.create(farm);
+      const response = request(app).post("/farms").send(farm);
+      response.expect(400);
+
+      const { body } = await response;
+      expect(body.error).toBe("name must be unique");
+    });
   });
 
-  describe("when the name is already in use", () => {
-    it.todo("returns correct error code and message");
+  describe("when attributes are missing", () => {
+    it("returns correct error code and message", async () => {
+      // Name
+      // Address
+      const response = request(app).post("/farms").send({});
+      response.expect(400);
+
+      const { body } = await response;
+      expect(body.error).toBe(
+        "Farm.name cannot be null\nFarm.address cannot be null",
+      );
+    });
   });
 });
 
