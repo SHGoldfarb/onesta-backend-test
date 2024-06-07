@@ -26,34 +26,16 @@ describe("POST /clients", () => {
 
   describe("when attributes are missing", () => {
     it("returns correct error code and message", async () => {
-      {
-        // Name
-        const response = request(app).post("/clients").send({});
-        response.expect(400);
+      // Name
+      // Lastname
+      // email
+      const response = request(app).post("/clients").send({});
+      response.expect(400);
 
-        const { body } = await response;
-        expect(body.error).toBe("Client.name cannot be null");
-      }
-
-      {
-        // Lastname
-        const response = request(app).post("/clients").send({ name: "John" });
-        response.expect(400);
-
-        const { body } = await response;
-        expect(body.error).toBe("Client.lastName cannot be null");
-      }
-
-      {
-        // email
-        const response = request(app)
-          .post("/clients")
-          .send({ name: "John", lastName: "smith" });
-        response.expect(400);
-
-        const { body } = await response;
-        expect(body.error).toBe("Client.email cannot be null");
-      }
+      const { body } = await response;
+      expect(body.error).toBe(
+        "Client.name cannot be null\nClient.lastName cannot be null\nClient.email cannot be null",
+      );
     });
   });
 });

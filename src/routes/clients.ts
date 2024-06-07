@@ -26,7 +26,7 @@ router.post("/", async (request: Request, response: Response) => {
     ) {
       return response
         .status(StatusCodes.BAD_REQUEST)
-        .json({ error: error.errors[0].message });
+        .json({ error: error.errors.map((e) => e.message).join("\n") });
     }
     throw error;
   }

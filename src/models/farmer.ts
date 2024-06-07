@@ -32,6 +32,7 @@ export const Farmer = sequelize.define<Farmer>("Farmer", {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
 });
 

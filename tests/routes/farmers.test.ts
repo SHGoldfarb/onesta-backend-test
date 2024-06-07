@@ -13,14 +13,30 @@ describe("POST /farmers", () => {
   });
 
   describe("when the email is already in use", () => {
-    it.todo("returns correct error code and message");
+    it("returns correct error code and message", async () => {
+      const farmer = { name: "John", lastName: "Smith", email: "jsmith@eg.ma" };
+      await Farmer.create(farmer);
+      const response = request(app).post("/farmers").send(farmer);
+      response.expect(400);
+
+      const { body } = await response;
+      expect(body.error).toBe("email must be unique");
+    });
   });
 
   describe("when attributes are missing", () => {
-    // Name
-    // Lastname
-    // email
-    it.todo("returns correct error code and message");
+    it("returns correct error code and message", async () => {
+      // Name
+      // Lastname
+      // email
+      const response = request(app).post("/farmers").send({});
+      response.expect(400);
+
+      const { body } = await response;
+      expect(body.error).toBe(
+        "Farmer.name cannot be null\nFarmer.lastName cannot be null\nFarmer.email cannot be null",
+      );
+    });
   });
 });
 

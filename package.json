@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "nodemon --exec node --import ./register.js src/server.ts",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --verbose",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --watch"
   },
   "author": "",

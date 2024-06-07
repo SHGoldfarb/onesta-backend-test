@@ -50,7 +50,7 @@ router.post("/", async (request: Request, response: Response) => {
   if (errors.length) {
     return response
       .status(StatusCodes.BAD_REQUEST)
-      .json({ error: errors.join("/n") });
+      .json({ error: errors.join("\n") });
   }
 
   const harvest = await Harvest.create({
