@@ -32,6 +32,7 @@ export const Client = sequelize.define<Client>("Client", {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
 });
 

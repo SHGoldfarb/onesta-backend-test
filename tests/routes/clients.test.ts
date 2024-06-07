@@ -13,14 +13,48 @@ describe("POST /clients", () => {
   });
 
   describe("when the email is already in use", () => {
-    it.todo("returns correct error code and message");
+    it("returns correct error code and message", async () => {
+      const client = { name: "John", lastName: "Smith", email: "jsmith@eg.ma" };
+      await Client.create(client);
+      const response = request(app).post("/clients").send(client);
+      response.expect(400);
+
+      const { body } = await response;
+      expect(body.error).toBe("email must be unique");
+    });
   });
 
   describe("when attributes are missing", () => {
-    // Name
-    // Lastname
-    // email
-    it.todo("returns correct error code and message");
+    it("returns correct error code and message", async () => {
+      {
+        // Name
+        const response = request(app).post("/clients").send({});
+        response.expect(400);
+
+        const { body } = await response;
+        expect(body.error).toBe("Client.name cannot be null");
+      }
+
+      {
+        // Lastname
+        const response = request(app).post("/clients").send({ name: "John" });
+        response.expect(400);
+
+        const { body } = await response;
+        expect(body.error).toBe("Client.lastName cannot be null");
+      }
+
+      {
+        // email
+        const response = request(app)
+          .post("/clients")
+          .send({ name: "John", lastName: "smith" });
+        response.expect(400);
+
+        const { body } = await response;
+        expect(body.error).toBe("Client.email cannot be null");
+      }
+    });
   });
 });
 
