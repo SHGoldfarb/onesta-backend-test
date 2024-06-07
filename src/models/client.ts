@@ -33,6 +33,9 @@ export const Client = sequelize.define<Client>("Client", {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
+    validate: {
+      notEmpty: true,
+    },
   },
 });
 

@@ -24,6 +24,9 @@ export const Farm = sequelize.define<Farm>("Farm", {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
+    validate: {
+      notEmpty: true,
+    },
   },
   address: {
     type: DataTypes.STRING,

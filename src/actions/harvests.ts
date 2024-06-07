@@ -6,8 +6,16 @@ import { Client } from "../models/client.ts";
 import { Farm } from "../models/farm.ts";
 import { Fruit } from "../models/fruit.ts";
 import { Variety } from "../models/variety.ts";
+import { ValidationError } from "sequelize";
+import { asyncReduce } from "../utils.ts";
 
-const processRow = async (row: string[]) => {
+class InconsistencyError extends Error {
+  constructor(model: string) {
+    super(`${model} has attributes inconsistent with database`);
+  }
+}
+
+const processRow = async (row: string[], lineNumber: number) => {
   const [
     farmerEmail,
     farmerName,
@@ -22,71 +30,123 @@ const processRow = async (row: string[]) => {
   ] = row;
 
   // TODO: too much copy/paste here
-  // TODO: handle the many errors that may happen
   // TODO: add and handle model constrains
 
-  const farmer =
-    (await Farmer.findOne({ where: { email: farmerEmail } })) ||
-    (await Farmer.create({
-      name: farmerName,
-      lastName: farmerLastName,
-      email: farmerEmail,
-    }));
+  try {
+    const [farmer] = await Farmer.findOrCreate({
+      where: { email: farmerEmail },
+      defaults: {
+        name: farmerName,
+        lastName: farmerLastName,
+        email: farmerEmail,
+      },
+    });
 
-  const client =
-    (await Client.findOne({ where: { email: clientEmail } })) ||
-    (await Client.create({
-      name: clientName,
-      lastName: clientLastName,
-      email: clientEmail,
-    }));
+    if (farmer.name !== farmerName || farmer.lastName !== farmerLastName) {
+      throw new InconsistencyError("farmer");
+    }
 
-  const farm =
-    (await Farm.findOne({ where: { name: farmName } })) ||
-    (await Farm.create({
-      name: farmName,
-      address: farmAddress,
-    }));
+    const [client] = await Client.findOrCreate({
+      where: { email: clientEmail },
+      defaults: {
+        name: clientName,
+        lastName: clientLastName,
+        email: clientEmail,
+      },
+    });
 
-  const fruit =
-    (await Fruit.findOne({ where: { name: fruitName } })) ||
-    (await Fruit.create({
-      name: fruitName,
-    }));
+    if (client.name !== clientName || client.lastName !== clientLastName) {
+      throw new InconsistencyError("client");
+    }
 
-  const variety =
-    (await Variety.findOne({ where: { name: varietyName } })) ||
-    (await Variety.create({
-      name: varietyName,
-    }));
+    const [farm] = await Farm.findOrCreate({
+      where: { name: farmName },
+      defaults: {
+        name: farmName,
+        address: farmAddress,
+      },
+    });
 
-  const harvest = await Harvest.create({
-    farmerId: farmer.id,
-    clientId: client.id,
-    farmId: farm.id,
-    fruitId: fruit.id,
-    varietyId: variety.id,
-  });
+    if (farm.address !== farmAddress) {
+      throw new InconsistencyError("farm");
+    }
 
-  return harvest;
+    const [fruit] = await Fruit.findOrCreate({
+      where: { name: fruitName },
+    });
+    const [variety] = await Variety.findOrCreate({
+      where: { name: varietyName },
+    });
+
+    const harvest = await Harvest.create({
+      farmerId: farmer.id,
+      clientId: client.id,
+      farmId: farm.id,
+      fruitId: fruit.id,
+      varietyId: variety.id,
+    });
+
+    return { harvest, error: null };
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return {
+        harvest: null,
+        error: `Line ${lineNumber}: ${error.errors[0].instance}: ${error.errors[0].message}`,
+      };
+    } else if (error instanceof InconsistencyError) {
+      return {
+        harvest: null,
+        error: `Line ${lineNumber}: ${error.message}`,
+      };
+    }
+
+    console.log(error);
+    throw error;
+  }
 };
 
 export const createHarvestsFromFile = async ({ path }: { path: string }) => {
-  const harvestPromises: Promise<Harvest>[] = [];
-  await new Promise<void>((resolve) => {
-    fs.createReadStream(path)
-      .pipe(parse({ delimiter: ";", from_line: 2 }))
-      .on("data", (row) => {
-        harvestPromises.push(processRow(row));
-      })
-      .on("end", () => {
-        resolve();
-      });
-  });
+  const rows: string[][] = [];
 
-  const harvests = await Promise.all(
-    harvestPromises.map(async (harvestPromise) => await harvestPromise),
-  );
+  try {
+    await new Promise<void>((resolve, reject) => {
+      fs.createReadStream(path)
+        .pipe(parse({ delimiter: ";", from_line: 2 }))
+        .on("data", (row: string[]) => {
+          rows.push(row);
+        })
+        .on("end", () => {
+          resolve();
+        })
+        .on("error", (error) => {
+          reject(error);
+        });
+    });
 
-  return { harvests };
+    // Process rows one at a time.
+    // Can't process concurrently because sequelize has a bug where
+    // concurrent executions of Model.findOrCreate() on an in-memory database
+    // will throw an error.
+    return asyncReduce(
+      rows.map((row, i) => async ({ harvests, errors }) => {
+        const { harvest, error } = await processRow(row, i + 2);
+        return {
+          harvests: harvest ? [...harvests, harvest] : harvests,
+          errors: error ? [...errors, error] : errors,
+        };
+      }),
+      { harvests: [], errors: [] },
+    );
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.constructor.name === "CsvError") {
+        return {
+          harvests: [],
+          errors: [error.message],
+        };
+      }
+    }
+
+    return { harvests: [], errors: [] };
+  }
 };

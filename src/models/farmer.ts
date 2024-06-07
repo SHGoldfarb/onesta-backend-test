@@ -33,6 +33,9 @@ export const Farmer = sequelize.define<Farmer>("Farmer", {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
+    validate: {
+      notEmpty: true,
+    },
   },
 });
 

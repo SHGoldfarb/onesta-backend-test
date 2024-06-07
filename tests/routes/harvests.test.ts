@@ -109,11 +109,69 @@ describe("POST /harvests/bulk", () => {
     expect(body.harvests[0].id).toBeTruthy();
   });
 
-  describe("when there are errors in creation", () => {
-    // Bad format
-    // Client: different names, same email
-    // Farmer: different names, same email
-    // Farm: dirrerent address, same name
-    it.todo("correctly returns created harvests and errored lines");
+  describe("when csv has bad format", () => {
+    it("correctly returns error code and errored line", async () => {
+      const response = request(app)
+        .post("/harvests/bulk")
+        .send({ csvPath: "./tests/resources/cosechas_bad_format.csv" });
+      response.expect(400);
+
+      const { body } = await response;
+
+      expect(body.total_created).toBe(0);
+
+      // Bad format
+      expect(body.error).toContain(
+        "Invalid Record Length: expect 10, got 3 on line 3",
+      );
+    });
+  });
+
+  describe("when the csv has attribute inconsistencies", () => {
+    it("correctly returns created harvests and errored lines", async () => {
+      const response = request(app)
+        .post("/harvests/bulk")
+        .send({ csvPath: "./tests/resources/cosechas_dirty.csv" });
+      response.expect(400);
+
+      const { body } = await response;
+
+      expect(body.total_created).toBe(53);
+      expect(body.harvests[0].id).toBeTruthy();
+      // Client: different names, same email
+      expect(body.error).toContain(
+        "client has attributes inconsistent with database",
+      );
+      // Farmer: different names, same email
+      expect(body.error).toContain(
+        "farmer has attributes inconsistent with database",
+      );
+      // Farm: dirrerent address, same name
+      expect(body.error).toContain(
+        "farm has attributes inconsistent with database",
+      );
+      // Empty fields
+      expect(body.error).toContain("Validation notEmpty on email failed");
+    });
+  });
+
+  it("correctly creates or reuses data", async () => {
+    const response = request(app)
+      .post("/harvests/bulk")
+      .send({ csvPath: "./tests/resources/cosechas_repeated.csv" });
+    response.expect(201);
+
+    await response;
+
+    // Creates correct number of clients
+    expect((await Client.findAll()).length).toBe(1);
+    // Creates correct number of farmers
+    expect((await Farmer.findAll()).length).toBe(1);
+    // Creates correct number of farms
+    expect((await Farm.findAll()).length).toBe(1);
+    // Creates correct number of fruits
+    expect((await Fruit.findAll()).length).toBe(1);
+    // Creates correct number of varieties
+    expect((await Variety.findAll()).length).toBe(1);
   });
 });

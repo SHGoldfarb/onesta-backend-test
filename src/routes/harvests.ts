@@ -72,9 +72,15 @@ router.post("/", async (request: Request, response: Response) => {
 router.post("/bulk", async (request: Request, response: Response) => {
   const { csvPath } = request.body;
 
-  const { harvests } = await createHarvestsFromFile({ path: csvPath });
+  const { harvests, errors } = await createHarvestsFromFile({ path: csvPath });
 
-  // TODO: errors
+  if (errors.length) {
+    return response.status(StatusCodes.BAD_REQUEST).json({
+      harvests,
+      total_created: harvests.length,
+      error: errors.join("\n"),
+    });
+  }
 
   return response
     .status(StatusCodes.CREATED)

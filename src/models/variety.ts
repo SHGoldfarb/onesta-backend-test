@@ -23,6 +23,9 @@ export const Variety = sequelize.define<Variety>("Variety", {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
+    validate: {
+      notEmpty: true,
+    },
   },
 });
 
