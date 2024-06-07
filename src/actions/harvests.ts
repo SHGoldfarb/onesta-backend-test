@@ -30,7 +30,6 @@ const processRow = async (row: string[], lineNumber: number) => {
   ] = row;
 
   // TODO: too much copy/paste here
-  // TODO: add and handle model constrains
 
   try {
     const [farmer] = await Farmer.findOrCreate({
@@ -147,6 +146,6 @@ export const createHarvestsFromFile = async ({ path }: { path: string }) => {
       }
     }
 
-    return { harvests: [], errors: [] };
+    throw error;
   }
 };
