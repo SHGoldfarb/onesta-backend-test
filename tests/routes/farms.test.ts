@@ -32,9 +32,7 @@ describe("POST /farms", () => {
       response.expect(400);
 
       const { body } = await response;
-      expect(body.error).toBe(
-        "Farm.name cannot be null\nFarm.address cannot be null",
-      );
+      expect(body.error).toBe("Farm.name cannot be null");
     });
   });
 });

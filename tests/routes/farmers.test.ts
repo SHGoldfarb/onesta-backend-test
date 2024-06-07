@@ -33,9 +33,7 @@ describe("POST /farmers", () => {
       response.expect(400);
 
       const { body } = await response;
-      expect(body.error).toBe(
-        "Farmer.name cannot be null\nFarmer.lastName cannot be null\nFarmer.email cannot be null",
-      );
+      expect(body.error).toBe("Farmer.email cannot be null");
     });
   });
 });

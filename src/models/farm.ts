@@ -30,7 +30,6 @@ export const Farm = sequelize.define<Farm>("Farm", {
   },
   address: {
     type: DataTypes.STRING,
-    allowNull: false,
   },
 });
 

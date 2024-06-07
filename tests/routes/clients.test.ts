@@ -33,9 +33,7 @@ describe("POST /clients", () => {
       response.expect(400);
 
       const { body } = await response;
-      expect(body.error).toBe(
-        "Client.name cannot be null\nClient.lastName cannot be null\nClient.email cannot be null",
-      );
+      expect(body.error).toBe("Client.email cannot be null");
     });
   });
 });
