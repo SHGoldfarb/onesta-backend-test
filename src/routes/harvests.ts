@@ -1,12 +1,19 @@
 import express, { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { Harvest } from "../models/harvest.ts";
-import { Fruit } from "../models/fruit.ts";
-import { Client } from "../models/client.ts";
-import { Variety } from "../models/variety.ts";
-import { Farm } from "../models/farm.ts";
-import { Farmer } from "../models/farmer.ts";
 import { createHarvestsFromFile } from "../actions/harvests.ts";
+import {
+  ForeignKeyConstraintError,
+  Model,
+  ModelStatic,
+  UniqueConstraintError,
+  ValidationError,
+} from "sequelize";
+import { Fruit } from "../models/fruit.ts";
+import { Variety } from "../models/variety.ts";
+import { Client } from "../models/client.ts";
+import { Farmer } from "../models/farmer.ts";
+import { Farm } from "../models/farm.ts";
 
 const router = express.Router();
 
@@ -19,48 +26,47 @@ router.get("/", async (request: Request, response: Response) => {
 });
 
 router.post("/", async (request: Request, response: Response) => {
-  const { fruitId, varietyId, clientId, farmerId, farmId } = request.body;
+  try {
+    const harvest = await Harvest.create(request.body);
+    return response.status(StatusCodes.CREATED).json({ harvest });
+  } catch (error) {
+    if (
+      error instanceof UniqueConstraintError ||
+      error instanceof ValidationError
+    ) {
+      return response
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ error: error.errors.map((e) => e.message).join("\n") });
+    } else if (error instanceof ForeignKeyConstraintError) {
+      const models: { [key: string]: ModelStatic<Model> } = {
+        fruit: Fruit,
+        variety: Variety,
+        client: Client,
+        farmer: Farmer,
+        farm: Farm,
+      };
 
-  // TODO: do this in a loop instead of copy/paste
+      const errors = (
+        await Promise.all(
+          Object.keys(models).map(async (modelName) => {
+            const Model = models[modelName];
+            const primaryKey = request.body[`${modelName}Id`];
+            if (!(await Model.findByPk(primaryKey))) {
+              return `${modelName} doesn't exist`;
+            }
 
-  const fruit = await Fruit.findByPk(fruitId);
-  const variety = await Variety.findByPk(varietyId);
-  const client = await Client.findByPk(clientId);
-  const farm = await Farm.findByPk(farmId);
-  const farmer = await Farmer.findByPk(farmerId);
+            return "";
+          }),
+        )
+      ).filter((error) => error !== "");
 
-  const errors = [];
+      return response
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ error: errors.join("\n") });
+    }
 
-  if (!fruit) {
-    errors.push("Fruit doesn't exist");
+    throw error;
   }
-  if (!variety) {
-    errors.push("Variety doesn't exist");
-  }
-  if (!client) {
-    errors.push("Client doesn't exist");
-  }
-  if (!farm) {
-    errors.push("Farm doesn't exist");
-  }
-  if (!farmer) {
-    errors.push("Farmer doesn't exist");
-  }
-
-  if (errors.length) {
-    return response
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ error: errors.join("\n") });
-  }
-
-  const harvest = await Harvest.create({
-    fruitId: fruitId,
-    varietyId: varietyId,
-    clientId: clientId,
-    farmId: farmId,
-    farmerId: farmerId,
-  });
-  return response.status(StatusCodes.CREATED).json({ harvest });
 });
 
 router.post("/bulk", async (request: Request, response: Response) => {

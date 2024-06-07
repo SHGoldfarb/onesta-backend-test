@@ -37,6 +37,43 @@ describe("POST /harvests", () => {
     const { body } = await response;
     expect(body.harvest).toBeTruthy();
   });
+
+  describe("when attributes are missing", () => {
+    it("returns correct error code and message", async () => {
+      // fruitId
+      // varietyId
+      // clientId
+      // farmId
+      // farmerId
+      const response = request(app).post("/harvests").send({});
+      response.expect(400);
+
+      const { body } = await response;
+      expect(body.error).toBe(
+        "Harvest.varietyId cannot be null\nHarvest.fruitId cannot be null\nHarvest.clientId cannot be null\nHarvest.farmerId cannot be null\nHarvest.farmId cannot be null",
+      );
+    });
+  });
+
+  describe("when some ids are incorrect", () => {
+    it("returns correct error code and message", async () => {
+      const fruit = await Fruit.create({ name: "Apple" });
+
+      const response = request(app).post("/harvests").send({
+        fruitId: fruit.id,
+        varietyId: 99,
+        clientId: 99,
+        farmId: 99,
+        farmerId: 99,
+      });
+      response.expect(400);
+
+      const { body } = await response;
+      expect(body.error).toBe(
+        "variety doesn't exist\nclient doesn't exist\nfarmer doesn't exist\nfarm doesn't exist",
+      );
+    });
+  });
 });
 
 describe("GET /harvests", () => {
@@ -55,15 +92,6 @@ describe("GET /harvests", () => {
           expect(res.body.total_harvests).toBe(1);
           expect(res.body.harvests[0]).toBeTruthy();
         });
-    });
-
-    describe("when attributes are missing", () => {
-      // fruitId
-      // varietyId
-      // clientId
-      // farmId
-      // farmerId
-      it.todo("returns correct error code and message");
     });
   });
 });
