@@ -1,19 +1,8 @@
 import fs from "fs";
 import { parse } from "csv-parse";
-import { Harvest } from "../models/harvest.ts";
-import { Farmer } from "../models/farmer.ts";
-import { Client } from "../models/client.ts";
-import { Farm } from "../models/farm.ts";
-import { Fruit } from "../models/fruit.ts";
-import { Variety } from "../models/variety.ts";
 import { ValidationError } from "sequelize";
-import { asyncReduce } from "../utils.ts";
-
-class InconsistencyError extends Error {
-  constructor(model: string) {
-    super(`${model} has attributes inconsistent with database`);
-  }
-}
+import { InconsistencyError, asyncReduce } from "../../utils.ts";
+import { createHarvest } from "./index.ts";
 
 const processRow = async (row: string[], lineNumber: number) => {
   const [
@@ -29,60 +18,18 @@ const processRow = async (row: string[], lineNumber: number) => {
     varietyName,
   ] = row;
 
-  // TODO: too much copy/paste here
-
   try {
-    const [farmer] = await Farmer.findOrCreate({
-      where: { email: farmerEmail },
-      defaults: {
-        name: farmerName,
-        lastName: farmerLastName,
-        email: farmerEmail,
-      },
-    });
-
-    if (farmer.name !== farmerName || farmer.lastName !== farmerLastName) {
-      throw new InconsistencyError("farmer");
-    }
-
-    const [client] = await Client.findOrCreate({
-      where: { email: clientEmail },
-      defaults: {
-        name: clientName,
-        lastName: clientLastName,
-        email: clientEmail,
-      },
-    });
-
-    if (client.name !== clientName || client.lastName !== clientLastName) {
-      throw new InconsistencyError("client");
-    }
-
-    const [farm] = await Farm.findOrCreate({
-      where: { name: farmName },
-      defaults: {
-        name: farmName,
-        address: farmAddress,
-      },
-    });
-
-    if (farm.address !== farmAddress) {
-      throw new InconsistencyError("farm");
-    }
-
-    const [fruit] = await Fruit.findOrCreate({
-      where: { name: fruitName },
-    });
-    const [variety] = await Variety.findOrCreate({
-      where: { name: varietyName },
-    });
-
-    const harvest = await Harvest.create({
-      farmerId: farmer.id,
-      clientId: client.id,
-      farmId: farm.id,
-      fruitId: fruit.id,
-      varietyId: variety.id,
+    const harvest = await createHarvest({
+      farmerEmail,
+      farmerName,
+      farmerLastName,
+      clientEmail,
+      clientName,
+      clientLastName,
+      farmName,
+      farmAddress,
+      fruitName,
+      varietyName,
     });
 
     return { harvest, error: null };
@@ -99,15 +46,13 @@ const processRow = async (row: string[], lineNumber: number) => {
       };
     }
 
-    console.log(error);
     throw error;
   }
 };
 
 export const createHarvestsFromFile = async ({ path }: { path: string }) => {
-  const rows: string[][] = [];
-
   try {
+    const rows: string[][] = [];
     await new Promise<void>((resolve, reject) => {
       fs.createReadStream(path)
         .pipe(parse({ delimiter: ";", from_line: 2 }))
@@ -139,6 +84,7 @@ export const createHarvestsFromFile = async ({ path }: { path: string }) => {
   } catch (error) {
     if (error instanceof Error) {
       if (error.constructor.name === "CsvError") {
+        // CSV is formatted incorrectly
         return {
           harvests: [],
           errors: [error.message],

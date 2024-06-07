@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { Harvest } from "../models/harvest.ts";
-import { createHarvestsFromFile } from "../actions/harvests.ts";
+import { createHarvestsFromFile } from "../actions/harvests/bulk.ts";
 import {
   ForeignKeyConstraintError,
   Model,

@@ -14,3 +14,9 @@ export const asyncReduce = (
       asyncFunction(await previousPromise),
     Promise.resolve(initialValue),
   );
+
+export class InconsistencyError extends Error {
+  constructor(model: string) {
+    super(`${model} has attributes inconsistent with database`);
+  }
+}
