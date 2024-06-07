@@ -2,7 +2,7 @@ import fs from "fs";
 import { parse } from "csv-parse";
 import { ValidationError } from "sequelize";
 import { InconsistencyError, asyncReduce } from "../../utils.ts";
-import { createHarvest } from "./index.ts";
+import { createHarvest } from "./create.ts";
 
 const processRow = async (row: string[], lineNumber: number) => {
   const [
