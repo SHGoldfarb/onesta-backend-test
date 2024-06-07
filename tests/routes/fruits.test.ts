@@ -13,12 +13,26 @@ describe("POST /fruits", () => {
   });
 
   describe("when the name is already in use", () => {
-    it.todo("returns correct error code and message");
+    it("returns correct error code and message", async () => {
+      const fruit = { name: "Apple" };
+      await Fruit.create(fruit);
+      const response = request(app).post("/fruits").send(fruit);
+      response.expect(400);
+
+      const { body } = await response;
+      expect(body.error).toBe("name must be unique");
+    });
   });
 
   describe("when attributes are missing", () => {
-    // Name
-    it.todo("returns correct error code and message");
+    it("returns correct error code and message", async () => {
+      // Name
+      const response = request(app).post("/fruits").send({});
+      response.expect(400);
+
+      const { body } = await response;
+      expect(body.error).toBe("Fruit.name cannot be null");
+    });
   });
 });
 

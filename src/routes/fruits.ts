@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { Fruit } from "../models/fruit.ts";
+import { UniqueConstraintError, ValidationError } from "sequelize";
 
 const router = express.Router();
 
@@ -15,8 +16,20 @@ router.get("/", async (request: Request, response: Response) => {
 router.post("/", async (request: Request, response: Response) => {
   const { name } = request.body;
 
-  const fruit = await Fruit.create({ name });
-  return response.status(StatusCodes.CREATED).json({ fruit });
+  try {
+    const fruit = await Fruit.create({ name });
+    return response.status(StatusCodes.CREATED).json({ fruit });
+  } catch (error) {
+    if (
+      error instanceof UniqueConstraintError ||
+      error instanceof ValidationError
+    ) {
+      return response
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ error: error.errors[0].message });
+    }
+    throw error;
+  }
 });
 
 export const fruitsRouter = router;

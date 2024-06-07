@@ -22,6 +22,7 @@ export const Fruit = sequelize.define<Fruit>("Fruit", {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
 });
 
