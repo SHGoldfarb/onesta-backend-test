@@ -11,6 +11,15 @@ describe("POST /varieties", () => {
     const { body } = await response;
     expect(body.variety.name).toBe(variety.name);
   });
+
+  describe("when the name is already in use", () => {
+    it.todo("returns correct error code and message");
+  });
+
+  describe("when attributes are missing", () => {
+    // name
+    it.todo("returns correct error code and message");
+  });
 });
 
 describe("GET /varieties", () => {

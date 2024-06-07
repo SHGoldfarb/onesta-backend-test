@@ -11,6 +11,16 @@ describe("POST /farms", () => {
     const { body } = await response;
     expect(body.farm.name).toBe(farm.name);
   });
+
+  describe("when attributes are missing", () => {
+    // Name
+    // Address
+    it.todo("returns correct error code and message");
+  });
+
+  describe("when the name is already in use", () => {
+    it.todo("returns correct error code and message");
+  });
 });
 
 describe("GET /farms", () => {

@@ -11,6 +11,17 @@ describe("POST /clients", () => {
     const { body } = await response;
     expect(body.client.name).toBe(client.name);
   });
+
+  describe("when the email is already in use", () => {
+    it.todo("returns correct error code and message");
+  });
+
+  describe("when attributes are missing", () => {
+    // Name
+    // Lastname
+    // email
+    it.todo("returns correct error code and message");
+  });
 });
 
 describe("GET /clients", () => {

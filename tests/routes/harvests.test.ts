@@ -56,6 +56,15 @@ describe("GET /harvests", () => {
           expect(res.body.harvests[0]).toBeTruthy();
         });
     });
+
+    describe("when attributes are missing", () => {
+      // fruitId
+      // varietyId
+      // clientId
+      // farmId
+      // farmerId
+      it.todo("returns correct error code and message");
+    });
   });
 });
 
@@ -68,9 +77,15 @@ describe("POST /harvests/bulk", () => {
 
     const { body } = await response;
 
-    console.log(body);
-
     expect(body.total_created).toBeTruthy();
     expect(body.harvests[0].id).toBeTruthy();
+  });
+
+  describe("when there are errors in creation", () => {
+    // Bad format
+    // Client: different names, same email
+    // Farmer: different names, same email
+    // Farm: dirrerent address, same name
+    it.todo("correctly returns created harvests and errored lines");
   });
 });
