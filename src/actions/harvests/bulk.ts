@@ -4,6 +4,7 @@ import { ValidationError } from "sequelize";
 import { InconsistencyError, asyncReduce } from "../../utils.ts";
 import { createHarvest } from "./create.ts";
 
+// Create a harvest and all associations that aren't already in the database.
 const processRow = async (row: string[], lineNumber: number) => {
   const [
     farmerEmail,
@@ -50,6 +51,7 @@ const processRow = async (row: string[], lineNumber: number) => {
   }
 };
 
+// Read csv file and create harvests.
 export const createHarvestsFromFile = async ({ path }: { path: string }) => {
   try {
     const rows: string[][] = [];
